@@ -2,18 +2,19 @@ package main
 
 import (
 	"encoding/hex"
-	"github.com/WolfgangMau/chamgo-qt/config"
-	"github.com/WolfgangMau/chamgo-qt/crc16"
-	"github.com/WolfgangMau/chamgo-qt/eml2dump"
-	"github.com/WolfgangMau/chamgo-qt/xmodem"
-	"github.com/therecipe/qt/core"
-	"github.com/therecipe/qt/widgets"
 	"log"
 	"math"
 	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
+
+	"github.com/WolfgangMau/chamgo-qt/config"
+	"github.com/WolfgangMau/chamgo-qt/crc16"
+	"github.com/WolfgangMau/chamgo-qt/eml2dump"
+	"github.com/WolfgangMau/chamgo-qt/xmodem"
+	"github.com/therecipe/qt/core"
+	"github.com/therecipe/qt/widgets"
 )
 
 type QTbytes struct {

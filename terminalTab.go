@@ -3,17 +3,18 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/WolfgangMau/chamgo-qt/config"
-	"github.com/WolfgangMau/chamgo-qt/crc16"
-	"github.com/WolfgangMau/chamgo-qt/nonces"
-	"github.com/WolfgangMau/chamgo-qt/xmodem"
-	"github.com/therecipe/qt/widgets"
 	"log"
 	"os"
 	"runtime"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/WolfgangMau/chamgo-qt/config"
+	"github.com/WolfgangMau/chamgo-qt/crc16"
+	"github.com/WolfgangMau/chamgo-qt/nonces"
+	"github.com/WolfgangMau/chamgo-qt/xmodem"
+	"github.com/therecipe/qt/widgets"
 )
 
 var (

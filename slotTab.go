@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/WolfgangMau/chamgo-qt/config"
-	"github.com/therecipe/qt/gui"
-	"github.com/therecipe/qt/widgets"
 	"log"
 	"os"
 	"runtime"
 	"strconv"
+
+	"github.com/WolfgangMau/chamgo-qt/config"
+	"github.com/therecipe/qt/gui"
+	"github.com/therecipe/qt/widgets"
 )
 
 type Slot struct {

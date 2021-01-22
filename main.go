@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/WolfgangMau/chamgo-qt/config"
-	"github.com/therecipe/qt/widgets"
 	"log"
 	"os"
+
+	"github.com/WolfgangMau/chamgo-qt/config"
+	"github.com/therecipe/qt/widgets"
 )
 
 //Global Variables - StateStorage
