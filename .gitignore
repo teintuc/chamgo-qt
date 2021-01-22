@@ -18,3 +18,4 @@ bin
 *.exe
 mfkey32v2*
 chamgo-qt.icns
+vendor
