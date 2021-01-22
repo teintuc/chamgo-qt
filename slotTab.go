@@ -65,15 +65,12 @@ func allSlots() *widgets.QWidget {
 	//two rows
 	for i := 0; i <= 1; i++ {
 		Slotlayouts[i].l = widgets.NewQHBoxLayout()
-		Slotlayouts[i].l.SetAlign(33)
 
 		SlotGroupVlayouts[i].l = widgets.NewQVBoxLayout()
-		SlotGroupVlayouts[i].l.SetAlign(33)
 
 		//4 columms
 		for s := 0; s <= 3; s++ {
 			boxlayout := widgets.NewQGridLayout(nil)
-			boxlayout.SetAlign(33)
 
 			/************* Slot checkbox ************/
 			Slots[c].slotl = widgets.NewQLabel(nil, 0)

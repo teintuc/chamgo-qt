@@ -56,7 +56,6 @@ func main() {
 	MyTabs.SetCurrentIndex(2)
 
 	mainlayout.AddWidget(MyTabs, 0, 0x0020)
-	mainlayout.SetAlign(33)
 
 	mainWidget := widgets.NewQWidget(nil, 0)
 	mainWidget.SetLayout(mainlayout)

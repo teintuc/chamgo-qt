@@ -64,7 +64,6 @@ func serialTab() *widgets.QWidget {
 
 	ToolsGroup := widgets.NewQGroupBox2("Fuctions", nil)
 	ToolsLayout := widgets.NewQVBoxLayout()
-	ToolsLayout.SetAlign(0x0020)
 	ToolsLayout.SetSpacing(1)
 	ToolsGroup.SetFixedWidth(220)
 
@@ -280,7 +279,6 @@ func serialTab() *widgets.QWidget {
 	serialSendGroup.SetLayout(serMonitorLayout)
 
 	serialTabLayout.AddWidget(serialSendGroup, 0, 0x0020)
-	serialTabLayout.SetAlign(33)
 
 	serialSendButton.ConnectClicked(func(checked bool) {
 		if serialSendTxt.Text() != "" {

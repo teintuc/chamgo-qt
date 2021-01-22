@@ -221,7 +221,6 @@ func dataTab() *widgets.QWidget {
 	//left menuy
 
 	dataTabLayout := widgets.NewQGridLayout(nil)
-	dataTabLayout.SetAlign(core.Qt__AlignTop)
 
 	//slot action
 	slotGroup := widgets.NewQGroupBox2("Slot Import / Export", nil)
@@ -317,7 +316,6 @@ func (QTbytesGrid *QTbytes) Create(labelIt bool) *widgets.QScrollArea {
 	scroller.SetWidget(wrapper)
 	sl := widgets.NewQGridLayout(scroller)
 	sl.SetSpacing(2)
-	sl.SetAlign(core.Qt__AlignLeft)
 
 	startRow := 0
 	startcell := 0
