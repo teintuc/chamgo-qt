@@ -271,9 +271,9 @@ func dataTab() *widgets.QWidget {
 	diffGroup.SetFixedWidth(155)
 	diffGroup.SetLayout(difflayout)
 
-	dataTabLayout.AddWidget(fileGroup, 0, 0, core.Qt__AlignCenter)
-	dataTabLayout.AddWidget(slotGroup, 1, 0, core.Qt__AlignCenter)
-	dataTabLayout.AddWidget(diffGroup, 2, 0, core.Qt__AlignCenter)
+	dataTabLayout.AddWidget2(fileGroup, 0, 0, core.Qt__AlignCenter)
+	dataTabLayout.AddWidget2(slotGroup, 1, 0, core.Qt__AlignCenter)
+	dataTabLayout.AddWidget2(diffGroup, 2, 0, core.Qt__AlignCenter)
 	tablayout.AddLayout(dataTabLayout, 0)
 
 	tagALayout := widgets.NewQVBoxLayout()
@@ -327,14 +327,14 @@ func (QTbytesGrid *QTbytes) Create(labelIt bool) *widgets.QScrollArea {
 			if !header {
 				QTbytesGrid.Labels = append(QTbytesGrid.Labels, widgets.NewQLabel(nil, 0))
 				QTbytesGrid.Labels[i2].SetText(strconv.Itoa(i2))
-				sl.AddWidget(QTbytesGrid.Labels[i2], startRow+i, startcell+i2+1, core.Qt__AlignHCenter)
+				sl.AddWidget2(QTbytesGrid.Labels[i2], startRow+i, startcell+i2+1, core.Qt__AlignHCenter)
 
 			} else {
 				if labelIt && i2 == 0 {
 					sector := int(math.Floor(float64(blockCount-1) / 4))
 					blockLabel := widgets.NewQLabel2("Block "+strconv.Itoa(blockCount-1), nil, 0)
 					blockLabel.SetToolTip("Sector " + strconv.Itoa(sector))
-					sl.AddWidget(blockLabel, startRow+i, 0, core.Qt__AlignLeft)
+					sl.AddWidget2(blockLabel, startRow+i, 0, core.Qt__AlignLeft)
 				}
 				QTbytesGrid.LineEdits = append(QTbytesGrid.LineEdits, widgets.NewQLineEdit(nil))
 				QTbytesGrid.LineEdits[byteCount].SetToolTip("Byte #" + strconv.Itoa(byteCount))
@@ -342,7 +342,7 @@ func (QTbytesGrid *QTbytes) Create(labelIt bool) *widgets.QScrollArea {
 				QTbytesGrid.LineEdits[byteCount].SetFixedWidth(20)
 				QTbytesGrid.LineEdits[byteCount].SetAlignment(core.Qt__AlignHCenter)
 
-				sl.AddWidget(QTbytesGrid.LineEdits[byteCount], startRow+i, startcell+i2+1, core.Qt__AlignLeft)
+				sl.AddWidget2(QTbytesGrid.LineEdits[byteCount], startRow+i, startcell+i2+1, core.Qt__AlignLeft)
 				byteCount++
 			}
 		}

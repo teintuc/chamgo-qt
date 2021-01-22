@@ -80,45 +80,45 @@ func allSlots() *widgets.QWidget {
 			Slots[c].slot = widgets.NewQCheckBox(nil)
 			Slots[c].slot.SetChecked(false)
 
-			boxlayout.AddWidget(Slots[c].slotl, 0, 0, 0x0001)
-			boxlayout.AddWidget(Slots[c].slot, 0, 1, 0x0001)
+			boxlayout.AddWidget2(Slots[c].slotl, 0, 0, 0x0001)
+			boxlayout.AddWidget2(Slots[c].slot, 0, 1, 0x0001)
 
 			/************* Slot Group ************/
 			Slots[c].model = widgets.NewQLabel(nil, 0)
 			Slots[c].model.SetText("Mode")
 			Slots[c].mode = widgets.NewQComboBox(nil)
 			Slots[c].mode.SetFixedWidth(147)
-			boxlayout.AddWidget(Slots[c].model, 1, 0, 0x0001)
-			boxlayout.AddWidget(Slots[c].mode, 1, 1, 0x0001)
+			boxlayout.AddWidget2(Slots[c].model, 1, 0, 0x0001)
+			boxlayout.AddWidget2(Slots[c].mode, 1, 1, 0x0001)
 
 			Slots[c].uidl = widgets.NewQLabel(nil, 0)
 			Slots[c].uidl.SetText("UID")
 			Slots[c].uid = widgets.NewQLineEdit(nil)
 			Slots[c].uid.SetFixedWidth(141)
-			boxlayout.AddWidget(Slots[c].uidl, 2, 0, 0x0001)
-			boxlayout.AddWidget(Slots[c].uid, 2, 1, 0x0001)
+			boxlayout.AddWidget2(Slots[c].uidl, 2, 0, 0x0001)
+			boxlayout.AddWidget2(Slots[c].uid, 2, 1, 0x0001)
 
 			Slots[c].btnsl = widgets.NewQLabel(nil, 0)
 			Slots[c].btnsl.SetText("Btn Short")
 			Slots[c].btns = widgets.NewQComboBox(nil)
 			Slots[c].btns.SetFixedWidth(147)
-			boxlayout.AddWidget(Slots[c].btnsl, 3, 0, 0x0001)
-			boxlayout.AddWidget(Slots[c].btns, 3, 1, 0x0001)
+			boxlayout.AddWidget2(Slots[c].btnsl, 3, 0, 0x0001)
+			boxlayout.AddWidget2(Slots[c].btns, 3, 1, 0x0001)
 
 			Slots[c].btnll = widgets.NewQLabel(nil, 0)
 			Slots[c].btnll.SetText("Btn Long")
 			Slots[c].btnl = widgets.NewQComboBox(nil)
 			Slots[c].btnl.SetFixedWidth(147)
-			boxlayout.AddWidget(Slots[c].btnll, 4, 0, 0x0001)
-			boxlayout.AddWidget(Slots[c].btnl, 4, 1, 0x0001)
+			boxlayout.AddWidget2(Slots[c].btnll, 4, 0, 0x0001)
+			boxlayout.AddWidget2(Slots[c].btnl, 4, 1, 0x0001)
 
 			Slots[c].sizel = widgets.NewQLabel(nil, 0)
 			Slots[c].sizel.SetText("Size")
 			Slots[c].size = widgets.NewQLineEdit(nil)
 			Slots[c].size.SetDisabled(true)
 			Slots[c].size.SetFixedWidth(141)
-			boxlayout.AddWidget(Slots[c].sizel, 5, 0, 0x0001)
-			boxlayout.AddWidget(Slots[c].size, 5, 1, 0x0001)
+			boxlayout.AddWidget2(Slots[c].sizel, 5, 0, 0x0001)
+			boxlayout.AddWidget2(Slots[c].size, 5, 1, 0x0001)
 
 			SlotGrouplayout := widgets.NewQVBoxLayout()
 			SlotGrouplayout.AddLayout(boxlayout, 0)
@@ -161,7 +161,7 @@ func allSlots() *widgets.QWidget {
 			}
 		}
 
-		abtnLayout.AddWidget(actionButtons[i].b, 0, i, 0x0004)
+		abtnLayout.AddWidget2(actionButtons[i].b, 0, i, 0x0004)
 
 	}
 	AButtonGroup := widgets.NewQGroupBox2("Available Actions", nil)
