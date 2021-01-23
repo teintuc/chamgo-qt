@@ -4,8 +4,9 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/user"
+	"path"
 	"path/filepath"
-	"runtime"
 
 	"gopkg.in/yaml.v2"
 )
@@ -41,7 +42,7 @@ type Config struct {
 func (c *Config) Load(cfgfile string) *Config {
 	// If the given config file is empty, use the default one
 	if len(cfgfile) == 0 {
-		cfgfile = Configpath() + configfile
+		cfgfile = c.findConfigFile()
 	}
 	// Save the current config file for save function
 	c.currentfile = cfgfile
@@ -77,19 +78,28 @@ func (c *Config) Save() bool {
 	return false
 }
 
-func Configpath() string {
+func (c *Config) findConfigFile() string {
+	var foundpath string
 
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	usr, err := user.Current()
 	if err != nil {
-		log.Printf("no executable-path found!?!\n%s\n", err)
-		return ""
+		log.Fatal(err)
 	}
-	configpath := dir + string(os.PathSeparator) + runtime.GOOS + string(filepath.Separator) + "config" + string(filepath.Separator)
-	if _, err := os.Stat(configpath + configfile); os.IsNotExist(err) {
-		log.Printf("ConfigFile %s not found!\n", configpath+configfile)
-		return ""
+
+	pathstotest := []string{
+		usr.HomeDir,
+		".",
 	}
-	return configpath
+
+	// Loop through possible path. The last as prority
+	for _, p := range pathstotest {
+		currentpath := path.Join(p, configfile)
+		_, err := os.Stat(currentpath)
+		if err == nil {
+			foundpath = currentpath
+		}
+	}
+	return foundpath
 }
 
 func Apppath() string {
