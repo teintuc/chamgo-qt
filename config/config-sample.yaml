@@ -88,5 +88,3 @@ device:
     threshold: THRESHOLD
     autocalibrate: AUTOCALIBRATE
     field: FIELD
-gui:
-  title: "Chameleon Gui2"
