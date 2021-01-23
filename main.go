@@ -5,11 +5,13 @@ import (
 	"os"
 
 	"github.com/WolfgangMau/chamgo-qt/config"
+	"github.com/alecthomas/kong"
 	"github.com/therecipe/qt/widgets"
 )
 
 //Global Variables - StateStorage
-const AppName = "Chameleron RevG"
+const AppName = "Chameleon"
+const AppDescription = "Gui for the chameleon mini"
 
 var Cfg config.Config
 var Statusbar *widgets.QStatusBar
@@ -17,14 +19,29 @@ var DeviceActions config.DeviceActions
 var MyTabs *widgets.QTabWidget
 var TagA QTbytes
 var TagB QTbytes
+var Params *Cli
 
-func initcfg() {
+type Cli struct {
+	Config string `optional name:"config" help:"Custom configuration file."`
+}
+
+func initcfg(configfile string) {
 	if _, err := getSerialPorts(); err != nil {
 		log.Println(err)
 	}
-	Cfg.Load()
+
+	Cfg.Load(configfile)
 	dn := Cfg.Device[SelectedDeviceId].Name
 	DeviceActions.Load(Cfg.Device[SelectedDeviceId].CmdSet, dn)
+}
+
+func initParameters() *Cli {
+	clirsc := new(Cli)
+	kname := kong.Name(AppName)
+	kdescription := kong.Description(AppDescription)
+	kong.Parse(clirsc, kname, kdescription)
+
+	return clirsc
 }
 
 func main() {
@@ -37,7 +54,8 @@ func main() {
 	defer f.Close()
 
 	log.SetOutput(f)
-	initcfg()
+	Params = initParameters()
+	initcfg(Params.Config)
 
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	Connected = false

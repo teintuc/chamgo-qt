@@ -13,7 +13,8 @@ import (
 var configfile = "config.yaml"
 
 type Config struct {
-	Device []struct {
+	currentfile string
+	Device      []struct {
 		Vendor  string            `yaml:"vendor"`
 		Product string            `yaml:"product"`
 		Name    string            `yaml:"name"`
@@ -37,36 +38,36 @@ type Config struct {
 	} `yaml:"device"`
 }
 
-func (c *Config) Load() *Config {
-	cfgfile := Configpath() + configfile
-	//log.Printf("Using configFile: %s\n", configfile)
-	if len(cfgfile) > 0 {
-		yamlFile, err := ioutil.ReadFile(cfgfile)
-		if err != nil {
-			log.Printf("error reading config (%s) err   #%v ", cfgfile, err)
-			os.Exit(2)
-		}
-
-		log.Println("loaded configfile: ", cfgfile)
-
-		err = yaml.Unmarshal(yamlFile, c)
-		if err != nil {
-			log.Fatalf("Unmarshal: %v", err)
-			return nil
-		}
-		return c
+func (c *Config) Load(cfgfile string) *Config {
+	// If the given config file is empty, use the default one
+	if len(cfgfile) == 0 {
+		cfgfile = Configpath() + configfile
 	}
-	return nil
+	// Save the current config file for save function
+	c.currentfile = cfgfile
+
+	log.Printf("Loading configFile: %s\n", cfgfile)
+	yamlFile, err := ioutil.ReadFile(cfgfile)
+	if err != nil {
+		log.Printf("error reading config (%s) err   #%v ", cfgfile, err)
+		os.Exit(2)
+	}
+
+	err = yaml.Unmarshal(yamlFile, c)
+	if err != nil {
+		log.Fatalf("Unmarshal: %v", err)
+		return nil
+	}
+	return c
 }
 
 func (c *Config) Save() bool {
-	cfgfile := Configpath() + configfile
-	if len(cfgfile) > 0 {
+	if len(c.currentfile) > 0 {
 		if data, err := yaml.Marshal(c); err != nil {
 			log.Printf("error Marshall yaml (%s)\n", err)
 			return false
 		} else {
-			err := ioutil.WriteFile(cfgfile, data, 0644)
+			err := ioutil.WriteFile(c.currentfile, data, 0644)
 			if err != nil {
 				log.Fatal(err)
 			}

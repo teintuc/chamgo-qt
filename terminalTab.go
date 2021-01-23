@@ -205,7 +205,7 @@ func serialTab() *widgets.QWidget {
 					widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
 				log.Println("error on connect: ", err)
 			} else {
-				initcfg()
+				initcfg(Params.Config)
 				if len(DeviceActions.GetUid) <= 0 {
 					log.Println("no action for 'getUid!?' ", DeviceActions.GetUid)
 				}

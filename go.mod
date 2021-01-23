@@ -3,6 +3,7 @@ module github.com/WolfgangMau/chamgo-qt
 go 1.15
 
 require (
+	github.com/alecthomas/kong v0.2.12
 	github.com/creack/goselect v0.1.1 // indirect
 	github.com/therecipe/qt v0.0.0-20200904063919-c0c124a5770d
 	github.com/therecipe/qt/internal/binding/files/docs/5.12.0 v0.0.0-20200904063919-c0c124a5770d // indirect
