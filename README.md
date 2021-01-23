@@ -17,9 +17,13 @@ what works in general (on RevE-Rebooted & RevG):
 what is missing:
 - logmode=live (RevG)
 
-to install/create the qt-bindings follow the instuctions in the wiki: https://github.com/therecipe/qt/wiki
+### Compile
 
-there are also some pre-compiled binaries in the ['release-section'](https://github.com/WolfgangMau/chamgo-qt/releases)
+For that, you will need:
+-  a working docker
+-  the qt-bindings. Follow the instuctions in the wiki: https://github.com/therecipe/qt/wiki
+
+Then run <pre>make</pre>
 
 ### Screenshots
 #### Serial-Terminal
