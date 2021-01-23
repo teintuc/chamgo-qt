@@ -34,9 +34,6 @@ type Config struct {
 			MfkeyBin string `yaml:"mfkeybin"`
 		} `yaml:"config"`
 	} `yaml:"device"`
-	Gui struct {
-		Title string `yaml:"title"`
-	} `yaml:"gui"`
 }
 
 func (c *Config) Load() *Config {

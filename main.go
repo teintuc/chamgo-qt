@@ -9,7 +9,8 @@ import (
 )
 
 //Global Variables - StateStorage
-var AppName = "Chamgo-QT"
+const AppName = "Chameleron RevG"
+
 var Cfg config.Config
 var Statusbar *widgets.QStatusBar
 var DeviceActions config.DeviceActions
@@ -37,7 +38,6 @@ func main() {
 
 	log.SetOutput(f)
 	initcfg()
-	AppName = Cfg.Gui.Title
 
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	Connected = false
