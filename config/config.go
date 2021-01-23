@@ -1,12 +1,13 @@
 package config
 
 import (
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"runtime"
+
+	"gopkg.in/yaml.v2"
 )
 
 var configfile = "config.yaml"
@@ -82,7 +83,7 @@ func Configpath() string {
 		log.Printf("no executable-path found!?!\n%s\n", err)
 		return ""
 	}
-	configpath := dir + string(os.PathSeparator) + runtime.GOOS  + string(filepath.Separator) + "config" + string(filepath.Separator)
+	configpath := dir + string(os.PathSeparator) + runtime.GOOS + string(filepath.Separator) + "config" + string(filepath.Separator)
 	if _, err := os.Stat(configpath + configfile); os.IsNotExist(err) {
 		log.Printf("ConfigFile %s not found!\n", configpath+configfile)
 		return ""
