@@ -85,7 +85,7 @@ func main() {
 	window.SetCentralWidget(mainWidget)
 
 	Statusbar = widgets.NewQStatusBar(window)
-	Statusbar.ShowMessage("not Connected", 0)
+	Statusbar.ShowMessage("Disconnected", 0)
 	window.SetStatusBar(Statusbar)
 
 	checkForDevices()

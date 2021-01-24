@@ -51,7 +51,7 @@ func serialTab() *widgets.QWidget {
 	serialConnectButton := widgets.NewQPushButton2("Connect", nil)
 
 	serialDeviceInfo := widgets.NewQLabel(nil, 0)
-	serialDeviceInfo.SetText("not Connected")
+	serialDeviceInfo.SetText("Disconnected")
 
 	serConLayout.AddWidget(deviceSelect)
 	serConLayout.AddWidget(serialPortSelect)
@@ -242,8 +242,8 @@ func serialTab() *widgets.QWidget {
 				serialConnectButton.SetText("Connect")
 				serialSendButton.SetDisabled(true)
 				serialSendButton.Repaint()
-				serialDeviceInfo.SetText("not Connected")
-				Statusbar.ShowMessage("not Connected", 0)
+				serialDeviceInfo.SetText("Disconnected")
+				Statusbar.ShowMessage("Disconnected", 0)
 				Connected = false
 				SerialPort.Close()
 
