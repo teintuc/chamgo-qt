@@ -2,12 +2,13 @@ package main
 
 import (
 	"errors"
-	"go.bug.st/serial.v1"
-	"go.bug.st/serial.v1/enumerator"
 	"log"
 	"strconv"
 	"strings"
 	"time"
+
+	"go.bug.st/serial.v1"
+	"go.bug.st/serial.v1/enumerator"
 )
 
 var Connected bool
