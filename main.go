@@ -13,7 +13,7 @@ import (
 const AppName = "Chameleon"
 const AppDescription = "Gui for the chameleon mini"
 
-var Cfg config.Config
+var Cfg *config.Config
 var Statusbar *widgets.QStatusBar
 var DeviceActions config.DeviceActions
 var MyTabs *widgets.QTabWidget
@@ -26,13 +26,17 @@ type Cli struct {
 }
 
 func initcfg(configfile string) {
-	if _, err := getSerialPorts(); err != nil {
-		log.Println(err)
+	tmp, err := config.NewConfigReader().Load(configfile)
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	Cfg.Load(configfile)
+	Cfg = tmp
 	dn := Cfg.Device[SelectedDeviceId].Name
 	DeviceActions.Load(Cfg.Device[SelectedDeviceId].CmdSet, dn)
+
+	if _, err = getSerialPorts(); err != nil {
+		log.Println(err)
+	}
 }
 
 func initParameters() *Cli {

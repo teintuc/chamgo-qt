@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"io/ioutil"
 	"log"
 	"os"
@@ -39,7 +40,11 @@ type Config struct {
 	} `yaml:"device"`
 }
 
-func (c *Config) Load(cfgfile string) *Config {
+func NewConfigReader() *Config {
+	return new(Config)
+}
+
+func (c *Config) Load(cfgfile string) (*Config, error) {
 	// If the given config file is empty, use the default one
 	if len(cfgfile) == 0 {
 		cfgfile = c.findConfigFile()
@@ -47,19 +52,21 @@ func (c *Config) Load(cfgfile string) *Config {
 	// Save the current config file for save function
 	c.currentfile = cfgfile
 
+	if len(c.currentfile) == 0 {
+		return nil, errors.New("No config file found. '~/.chamgo/config.yaml', './config.yaml'")
+	}
+
 	log.Printf("Loading configFile: %s\n", cfgfile)
 	yamlFile, err := ioutil.ReadFile(cfgfile)
 	if err != nil {
-		log.Printf("error reading config (%s) err   #%v ", cfgfile, err)
-		os.Exit(2)
+		return nil, err
 	}
 
 	err = yaml.Unmarshal(yamlFile, c)
 	if err != nil {
-		log.Fatalf("Unmarshal: %v", err)
-		return nil
+		return nil, err
 	}
-	return c
+	return c, nil
 }
 
 func (c *Config) Save() bool {
@@ -87,7 +94,7 @@ func (c *Config) findConfigFile() string {
 	}
 
 	pathstotest := []string{
-		usr.HomeDir,
+		usr.HomeDir + "/.chamgo",
 		".",
 	}
 
