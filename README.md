@@ -23,7 +23,8 @@ For that, you will need:
 -  a working docker
 -  the qt-bindings. Follow the instuctions in the wiki: https://github.com/therecipe/qt/wiki
 
-Then run <pre>make</pre>
+Then run <pre>make linux</pre> (For linux)
+Otherwise <pre>make help</pre> will list your the possible platforms
 
 ### Screenshots
 #### Serial-Terminal
