@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	"log"
 	"os"
 	"runtime"
 	"strconv"
@@ -14,6 +13,7 @@ import (
 	"github.com/WolfgangMau/chamgo-qt/crc16"
 	"github.com/WolfgangMau/chamgo-qt/nonces"
 	"github.com/WolfgangMau/chamgo-qt/xmodem"
+	"github.com/sirupsen/logrus"
 	"github.com/therecipe/qt/widgets"
 )
 
@@ -116,13 +116,13 @@ func serialTab() *widgets.QWidget {
 	leftTabLayout.AddWidget(ToolsGroup, 1, 0x0020)
 
 	macrodir := config.Apppath() + string(os.PathSeparator) + "macros" + string(os.PathSeparator)
-	log.Println("checking for macrodir: ", macrodir)
+	logrus.Debug("checking for macrodir: ", macrodir)
 	var macros []string
 	if macrodir != "" {
 		macros = config.GetFilesInFolder(macrodir, ".cmds")
 	}
 	if len(macros) > 0 {
-		log.Println("Macro-Files found: ", len(macros))
+		logrus.Debug("Macro-Files found: ", len(macros))
 
 		macroGroupLayout := widgets.NewQHBoxLayout()
 		macroGroup := widgets.NewQGroupBox2("Command Macros", nil)
@@ -140,7 +140,7 @@ func serialTab() *widgets.QWidget {
 
 			if Connected {
 
-				log.Println("execute macro ", macroSelect.CurrentText())
+				logrus.Debug("execute macro ", macroSelect.CurrentText())
 				cmds := config.ReadFileLines(config.Apppath() + string(os.PathSeparator) + runtime.GOOS + string(os.PathSeparator) + "macros" + string(os.PathSeparator) + macroSelect.CurrentText())
 				if len(cmds) > 0 {
 					for _, c := range cmds {
@@ -154,7 +154,7 @@ func serialTab() *widgets.QWidget {
 							SerialPort.ResetInputBuffer()
 
 							responsecode := strings.Replace(strings.Replace(string(buff[len(buff)-8:]), "\r", "", -1), "\n", "", -1)
-							log.Println("len enc: ", len(buff))
+							logrus.Debug("len enc: ", len(buff))
 							buff = nonces.DecryptData(buff[0:len(buff)-10], 123321, 208)
 							uid := buff[0:4]
 							serialMonitor.AppendPlainText(fmt.Sprintf("uid: %04X\n", uid))
@@ -193,7 +193,7 @@ func serialTab() *widgets.QWidget {
 	serialConnectButton.ConnectClicked(func(checked bool) {
 		Commands := Cfg.Device[SelectedDeviceId].CmdSet
 		//for n,c := range Commands {
-		//	log.Printf("Command Name: %s -> %s\n",n,c)
+		//	logrus.Debugf("Command Name: %s -> %s\n",n,c)
 		//}
 		//Commands.load(deviceSelect.CurrentText())
 
@@ -203,11 +203,11 @@ func serialTab() *widgets.QWidget {
 			if err != nil {
 				widgets.QMessageBox_Information(nil, "OK", "can't connect to Serial\n"+string(err.Error()),
 					widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
-				log.Println("error on connect: ", err)
+				logrus.Error("error on connect: ", err)
 			} else {
 				initcfg(Params.Config)
 				if len(DeviceActions.GetUid) <= 0 {
-					log.Println("no action for 'getUid!?' ", DeviceActions.GetUid)
+					logrus.Debug("no action for 'getUid!?' ", DeviceActions.GetUid)
 				}
 
 				//ask for the device-version

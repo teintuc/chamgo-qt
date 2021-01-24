@@ -1,6 +1,6 @@
 package nonces
 
-import "log"
+import "github.com/sirupsen/logrus"
 
 type Nonce struct {
 	Key   byte
@@ -32,7 +32,7 @@ func ExtractNonces(data []byte) (res []Nonce) {
 		n.Ar = data[i+12 : i+16] //28-31
 		if n.Key != byte(0xff) && n.Block != byte(0xff) {
 			res = append(res, n)
-			log.Printf("key: %x  sector: %x %x %x %x\n", n.Key, n.Block, n.Nt, n.Nr, n.Ar)
+			logrus.Debugf("key: %x  sector: %x %x %x %x\n", n.Key, n.Block, n.Nt, n.Nr, n.Ar)
 		}
 	}
 	return res

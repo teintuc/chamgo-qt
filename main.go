@@ -1,11 +1,11 @@
 package main
 
 import (
-	"log"
 	"os"
 
 	"github.com/WolfgangMau/chamgo-qt/config"
 	"github.com/alecthomas/kong"
+	"github.com/sirupsen/logrus"
 	"github.com/therecipe/qt/widgets"
 )
 
@@ -22,20 +22,21 @@ var TagB QTbytes
 var Params *Cli
 
 type Cli struct {
+	Debug  bool   `help:"Enable debug logging."`
 	Config string `optional name:"config" help:"Custom configuration file."`
 }
 
 func initcfg(configfile string) {
 	tmp, err := config.NewConfigReader().Load(configfile)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 	Cfg = tmp
 	dn := Cfg.Device[SelectedDeviceId].Name
 	DeviceActions.Load(Cfg.Device[SelectedDeviceId].CmdSet, dn)
 
 	if _, err = getSerialPorts(); err != nil {
-		log.Println(err)
+		logrus.Fatal(err)
 	}
 }
 
@@ -49,19 +50,14 @@ func initParameters() *Cli {
 }
 
 func main() {
-	var f *os.File
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	f, err := os.OpenFile(config.Apppath()+string(os.PathSeparator)+"chamgo-qt.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
-	if err != nil {
-		log.Printf("error opening file: %v", err)
-	}
-	defer f.Close()
-
-	log.SetOutput(f)
+	// Parse parameters
 	Params = initParameters()
+	if Params.Debug == true {
+		logrus.SetLevel(logrus.DebugLevel)
+	}
+	// Parse configuration file
 	initcfg(Params.Config)
 
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	Connected = false
 
 	app := widgets.NewQApplication(len(os.Args), os.Args)

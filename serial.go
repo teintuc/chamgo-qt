@@ -2,11 +2,11 @@ package main
 
 import (
 	"errors"
-	"log"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"go.bug.st/serial.v1"
 	"go.bug.st/serial.v1/enumerator"
 )
@@ -39,20 +39,20 @@ func getSerialPorts() (usbports []string, perr error) {
 	//Devices.load()
 	ports2, err := enumerator.GetDetailedPortsList()
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 		return nil, err
 	}
 	ports, err2 := serial.GetPortsList()
 	if err2 != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 		return nil, err2
 	}
 	if err != nil || err2 != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 		return nil, err
 	}
 	if len(ports) == 0 {
-		log.Println("No serial ports found!")
+		logrus.Error("No serial ports found!")
 		return nil, nil
 	}
 
@@ -62,7 +62,7 @@ func getSerialPorts() (usbports []string, perr error) {
 			for di, d := range Cfg.Device {
 				if strings.ToLower(port.VID) == strings.ToLower(d.Vendor) && strings.ToLower(port.PID) == strings.ToLower(d.Product) {
 					//noinspection ALL
-					log.Printf("detected Device: %s\nportName: %s\n", Cfg.Device[di].Name, port.Name)
+					logrus.Debugf("detected Device: %s\nportName: %s\n", Cfg.Device[di].Name, port.Name)
 					SelectedPortId = len(usbports) - 1
 					SelectedDeviceId = di
 					SerialDevice = port.Name
@@ -70,7 +70,7 @@ func getSerialPorts() (usbports []string, perr error) {
 			}
 		}
 	}
-	log.Printf("SelectedPortId: %d - SerialDevice1: %s - SelectedDeviceId: %d\n", SelectedPortId, SerialDevice, SelectedDeviceId)
+	logrus.Debugf("SelectedPortId: %d - SerialDevice1: %s - SelectedDeviceId: %d\n", SelectedPortId, SerialDevice, SelectedDeviceId)
 	return usbports, nil
 }
 
@@ -92,14 +92,14 @@ func connectSerial(selSerialPort string) (err error) {
 		}
 		SerialPort, err = serial.Open(selSerialPort, mode)
 		if err != nil {
-			log.Println("error serial connect ", err)
+			logrus.Error("error serial connect ", err)
 		} else {
 			c1 <- 1
 		}
 	}()
 	select {
 	case res := <-c1:
-		log.Printf("SerialPort %v  connected - res: %d\n", SerialPort, res)
+		logrus.Debugf("SerialPort %v  connected - res: %d\n", SerialPort, res)
 	case <-time.After(time.Second * time.Duration(Cfg.Device[SelectedDeviceId].Config.Serial.ConeectionTimeout)):
 		err = errors.New("serial connection timeout")
 	}
@@ -118,10 +118,10 @@ func sendSerialCmd(cmd string) {
 	SerialResponse.String = ""
 	SerialResponse.Payload = ""
 
-	log.Printf("send cmd: %s\n", cmd)
+	logrus.Debugf("send cmd: %s\n", cmd)
 	temp := sendSerial(cmd)
 	prepareResponse(temp)
-	log.Printf("response:\n\tCode: %d\n\tString: %s \n\tPayload: %s\n", SerialResponse.Code, SerialResponse.String, SerialResponse.Payload)
+	logrus.Debugf("response:\n\tCode: %d\n\tString: %s \n\tPayload: %s\n", SerialResponse.Code, SerialResponse.String, SerialResponse.Payload)
 }
 
 func sendSerial(cmdStr string) string {
@@ -130,7 +130,7 @@ func sendSerial(cmdStr string) string {
 	go func() {
 		_, err := SerialPort.Write([]byte(cmdStr + "\r\n"))
 		if err != nil {
-			log.Println("errro send serial: ", err, cmdStr)
+			logrus.Error("errro send serial: ", err, cmdStr)
 		}
 		time.Sleep(time.Millisecond * time.Duration(Cfg.Device[SelectedDeviceId].Config.Serial.WaitForReceive))
 		resp = receiveSerial()
@@ -140,7 +140,7 @@ func sendSerial(cmdStr string) string {
 	case resp := <-c1:
 		return resp
 	case <-time.After(time.Second * time.Duration(Cfg.Device[SelectedDeviceId].Config.Serial.ConeectionTimeout)):
-		log.Println("sendSrial Timeout")
+		logrus.Error("sendSrial Timeout")
 	}
 	return resp
 }
@@ -154,7 +154,7 @@ func receiveSerial() (resp string) {
 	for c < 1 {
 		n, err = SerialPort.Read(buff)
 		if err != nil {
-			log.Printf("error temp: %s - n %d - error (%s)\n", resp, n, err)
+			logrus.Errorf("error temp: %s - n %d - error (%s)\n", resp, n, err)
 		}
 		c = c + n
 	}
@@ -179,7 +179,7 @@ func prepareResponse(res string) {
 	res = strings.Replace(res, "##", "#", -1)
 
 	if !strings.Contains(res, ":") {
-		log.Println("no response given")
+		logrus.Error("no response given")
 		SerialPort.ResetInputBuffer()
 		return
 	}
@@ -207,7 +207,7 @@ func prepareResponse(res string) {
 func SerialSendOnly(cmd string) {
 	_, err := SerialPort.Write([]byte(strings.ToUpper(cmd) + "\r\n"))
 	if err != nil {
-		log.Println(err)
+		logrus.Error(err)
 	}
 	time.Sleep(time.Millisecond * time.Duration(Cfg.Device[SelectedDeviceId].Config.Serial.WaitForReceive))
 	return
@@ -223,7 +223,7 @@ func GetSpecificBytes(size int) []byte {
 			n := 0
 			n, err := SerialPort.Read(buff)
 			if err != nil {
-				log.Println(err)
+				logrus.Error(err)
 			}
 			c = c + n
 		}
@@ -233,7 +233,7 @@ func GetSpecificBytes(size int) []byte {
 	case buff := <-c1:
 		return buff
 	case <-time.After(time.Second * time.Duration(Cfg.Device[SelectedDeviceId].Config.Serial.ConeectionTimeout)):
-		log.Println("GetSpecificBytes Timeout")
+		logrus.Error("GetSpecificBytes Timeout")
 	}
 
 	return nil

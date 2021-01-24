@@ -2,19 +2,20 @@ package config
 
 import (
 	"bufio"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 func GetFilesInFolder(root string, ext string) []string {
 	var files []string
-	log.Printf("looking for files with extension %s in %s\n", root, ext)
+	logrus.Debugf("looking for files with extension %s in %s\n", root, ext)
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		log.Printf("path: %s\n", path)
+		logrus.Debugf("path: %s\n", path)
 		if filepath.Ext(path) == ext {
-			log.Printf("add %s\n", path)
+			logrus.Debugf("add %s\n", path)
 			files = append(files, strings.Replace(path, root, "", 1))
 		}
 		return nil
@@ -23,7 +24,7 @@ func GetFilesInFolder(root string, ext string) []string {
 		panic(err)
 	}
 	for _, file := range files {
-		log.Println(file)
+		logrus.Debug(file)
 	}
 	return files
 }
@@ -31,7 +32,7 @@ func GetFilesInFolder(root string, ext string) []string {
 func ReadFileLines(path string) (res []string) {
 	file, err := os.Open(path)
 	if err != nil {
-		log.Print(err)
+		logrus.Error(err)
 	}
 	defer file.Close()
 
@@ -41,7 +42,7 @@ func ReadFileLines(path string) (res []string) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		log.Print(err)
+		logrus.Error(err)
 	}
 	return res
 }

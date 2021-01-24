@@ -2,9 +2,10 @@ package xmodem
 
 import (
 	"bytes"
-	"go.bug.st/serial.v1"
-	"log"
 	"time"
+
+	"github.com/sirupsen/logrus"
+	"go.bug.st/serial.v1"
 )
 
 //xmodem
@@ -29,7 +30,7 @@ func Receive(serialPort serial.Port, size int) (success int, failed int, data by
 	oBuffer := make([]byte, 1)
 	dBuffer := make([]byte, size)
 
-	//log.Println("prepare")
+	//logrus.Debug("prepare")
 	var protocmd []byte
 	protocmd = append(protocmd, NAK)
 
@@ -42,13 +43,13 @@ func Receive(serialPort serial.Port, size int) (success int, failed int, data by
 
 		// init tranafer
 		if _, err := serialPort.Write(protocmd); err != nil {
-			log.Println(err)
+			logrus.Error(err)
 			break
 		}
 
 		if protocmd[0] == EOT || protocmd[0] == EOF || protocmd[0] == CAN {
-			log.Printf("tranfer end.")
-			getBytes=false
+			logrus.Debugf("tranfer end.")
+			getBytes = false
 			if success == 0 {
 				success++
 				data.Write(myPacket.Payload)
@@ -57,7 +58,7 @@ func Receive(serialPort serial.Port, size int) (success int, failed int, data by
 		}
 
 		if _, err := serialPort.Read(oBuffer); err != nil {
-			log.Println(err)
+			logrus.Error(err)
 			break
 		}
 
@@ -70,7 +71,7 @@ func Receive(serialPort serial.Port, size int) (success int, failed int, data by
 				n, err := serialPort.Read(dBuffer)
 				bytesReceived = bytesReceived + n
 				if err != nil {
-					log.Println("Read failed:", err)
+					logrus.Debug("Read failed:", err)
 				}
 
 				if bytesReceived >= 131 {
@@ -83,22 +84,22 @@ func Receive(serialPort serial.Port, size int) (success int, failed int, data by
 					CHK := int(Checksum(myPacket.Payload, 0))
 					if CHK == myPacket.Checksum && myPacket.checkPaylod() {
 						//packet OK
-						log.Println("Checksum OK for Packet: ", myPacket.PacketNum)
+						logrus.Debug("Checksum OK for Packet: ", myPacket.PacketNum)
 						protocmd[0] = ACK
 						success++
 						data.Write(myPacket.Payload)
 					} else {
 						//something went wrong
-						log.Println("something went wront with Packet: ", myPacket.PacketNum)
+						logrus.Debug("something went wront with Packet: ", myPacket.PacketNum)
 						if !myPacket.checkPaylod() && failed < 10 {
 
 							if byte(myPacket.PacketNum) == EOF || byte(myPacket.PacketNum) == EOT {
-								log.Println("transmission end at Block : ", myPacket.PacketNum)
+								logrus.Debug("transmission end at Block : ", myPacket.PacketNum)
 								//EOT & EOF are no failures
 								failed--
 							} else {
 								//message for sender
-								log.Println("resend ... Block ", myPacket.PacketNum)
+								logrus.Debug("resend ... Block ", myPacket.PacketNum)
 								failed++
 								blockReceived = true
 								protocmd[0] = NAK
@@ -106,7 +107,7 @@ func Receive(serialPort serial.Port, size int) (success int, failed int, data by
 							}
 						}
 						//stop transfer
-						log.Printf("Failed Packet (%d)\n len: %d\nData: %X\n", myPacket.PacketNum, bytesReceived, dBuffer[:bytesReceived])
+						logrus.Debugf("Failed Packet (%d)\n len: %d\nData: %X\n", myPacket.PacketNum, bytesReceived, dBuffer[:bytesReceived])
 						failed-- //the last packet checksum must have missmatched - no error!
 						protocmd[0] = CAN
 						getBytes = false
@@ -123,19 +124,19 @@ func Send(serialPort serial.Port, p []Xblock) {
 	oBuffer := make([]byte, 1)
 	failure := 0
 	success := 0
-	//log.Printf("start sending %d Packets of %d bytes payload\n", len(p), len(p[0].payload))
+	//logrus.Debugf("start sending %d Packets of %d bytes payload\n", len(p), len(p[0].payload))
 	for _, sp := range p {
 		var resend = true //init - we need to read at least once
 		for resend {
-			//log.Printf("send Packet: %d\n", sp.packetNum)
+			//logrus.Debugf("send Packet: %d\n", sp.packetNum)
 			sendPacket(serialPort, sp)
 			if _, err := serialPort.Read(oBuffer); err != nil {
-				log.Println(err)
+				logrus.Error(err)
 			} else {
 				switch oBuffer[0] {
 				case NAK: // NAK
 					//receiver ask for retransmission of this block
-					log.Printf("resend Packet %d\n", sp.PacketNum)
+					logrus.Debugf("resend Packet %d\n", sp.PacketNum)
 					resend = true
 					failure++
 				case ACK: // ACK
@@ -144,12 +145,12 @@ func Send(serialPort serial.Port, p []Xblock) {
 					success++
 				case CAN: // CAN
 					//receiver wants to quit session
-					log.Printf("receiver aborted transmission at Packet %d\n", sp.PacketNum)
+					logrus.Debugf("receiver aborted transmission at Packet %d\n", sp.PacketNum)
 					resend = false //quit session, no need to resend the packet
 					failure++
 				default:
 					//should not happen
-					log.Printf("unexspected answer(0x%X) for packet %d\n", oBuffer[0], sp.PacketNum)
+					logrus.Debugf("unexspected answer(0x%X) for packet %d\n", oBuffer[0], sp.PacketNum)
 					resend = true // better to read the packet again, hopefully no endless loop ;-)
 					failure++
 				}
@@ -160,7 +161,7 @@ func Send(serialPort serial.Port, p []Xblock) {
 			break
 		}
 	}
-	log.Printf("upload done - Success: %d - Failures: %d\n", success, failure)
+	logrus.Debugf("upload done - Success: %d - Failures: %d\n", success, failure)
 
 	//send EOT byte
 	var eot []byte
@@ -170,12 +171,12 @@ func Send(serialPort serial.Port, p []Xblock) {
 	n := 0
 	for n == 1 {
 		if n, err = serialPort.Read(oBuffer); err != nil {
-			log.Println(err)
+			logrus.Error(err)
 		}
 		if oBuffer[0] != ACK {
-			log.Printf("unexpected answer to EOT: 0x%X\n", oBuffer[0])
+			logrus.Debugf("unexpected answer to EOT: 0x%X\n", oBuffer[0])
 		} else {
-			log.Println("end of transfer")
+			logrus.Debug("end of transfer")
 
 		}
 	}

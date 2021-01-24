@@ -1,12 +1,12 @@
 package main
 
 import (
-	"log"
 	"os"
 	"runtime"
 	"strconv"
 
 	"github.com/WolfgangMau/chamgo-qt/config"
+	"github.com/sirupsen/logrus"
 	"github.com/therecipe/qt/gui"
 	"github.com/therecipe/qt/widgets"
 )
@@ -142,7 +142,7 @@ func allSlots() *widgets.QWidget {
 	if len(Cfg.Device[SelectedDeviceId].Config.MfkeyBin) > 0 {
 		if _, err := os.Stat(config.Apppath() + string(os.PathSeparator) + runtime.GOOS + string(os.PathSeparator) + "bin" + string(os.PathSeparator) + Cfg.Device[SelectedDeviceId].Config.MfkeyBin); os.IsNotExist(err) {
 			mfkeyBinPresent = false
-			log.Println("No mfkey32 binary configured or found in " + config.Apppath() + string(os.PathSeparator) + runtime.GOOS + string(os.PathSeparator) + "bin" + string(os.PathSeparator) + Cfg.Device[SelectedDeviceId].Config.MfkeyBin)
+			logrus.Debug("No mfkey32 binary configured or found in " + config.Apppath() + string(os.PathSeparator) + runtime.GOOS + string(os.PathSeparator) + "bin" + string(os.PathSeparator) + Cfg.Device[SelectedDeviceId].Config.MfkeyBin)
 		}
 	}
 
@@ -151,7 +151,7 @@ func allSlots() *widgets.QWidget {
 	if !ok || !mfkeyBinPresent || Cfg.Device[SelectedDeviceId].Config.MfkeyBin == "" {
 		withdet = false
 	}
-	log.Print("MfkeyBin: ", Cfg.Device[SelectedDeviceId].Config.MfkeyBin)
+	logrus.Debug("MfkeyBin: ", Cfg.Device[SelectedDeviceId].Config.MfkeyBin)
 
 	for i, s := range ActionButtons {
 		actionButtons[i].b = widgets.NewQPushButton2(s, nil)

@@ -3,12 +3,12 @@ package config
 import (
 	"errors"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/user"
 	"path"
 	"path/filepath"
 
+	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
 
@@ -56,7 +56,7 @@ func (c *Config) Load(cfgfile string) (*Config, error) {
 		return nil, errors.New("No config file found. '~/.chamgo/config.yaml', './config.yaml'")
 	}
 
-	log.Printf("Loading configFile: %s\n", cfgfile)
+	logrus.Debugf("Loading configFile: %s\n", cfgfile)
 	yamlFile, err := ioutil.ReadFile(cfgfile)
 	if err != nil {
 		return nil, err
@@ -72,12 +72,12 @@ func (c *Config) Load(cfgfile string) (*Config, error) {
 func (c *Config) Save() bool {
 	if len(c.currentfile) > 0 {
 		if data, err := yaml.Marshal(c); err != nil {
-			log.Printf("error Marshall yaml (%s)\n", err)
+			logrus.Debugf("error Marshall yaml (%s)\n", err)
 			return false
 		} else {
 			err := ioutil.WriteFile(c.currentfile, data, 0644)
 			if err != nil {
-				log.Fatal(err)
+				logrus.Fatal(err)
 			}
 			return true
 		}
@@ -90,7 +90,7 @@ func (c *Config) findConfigFile() string {
 
 	usr, err := user.Current()
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 
 	pathstotest := []string{
@@ -113,7 +113,7 @@ func Apppath() string {
 
 	appdir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
-		log.Printf("no executable-path found!?!\n%s\n", err)
+		logrus.Debugf("no executable-path found!?!\n%s\n", err)
 		return ""
 	}
 	return appdir

@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/hex"
-	"log"
 	"math"
 	"path/filepath"
 	"runtime"
@@ -13,6 +12,7 @@ import (
 	"github.com/WolfgangMau/chamgo-qt/crc16"
 	"github.com/WolfgangMau/chamgo-qt/eml2dump"
 	"github.com/WolfgangMau/chamgo-qt/xmodem"
+	"github.com/sirupsen/logrus"
 	"github.com/therecipe/qt/core"
 	"github.com/therecipe/qt/widgets"
 )
@@ -36,25 +36,25 @@ func dataTab() *widgets.QWidget {
 		fromFileSelect := widgets.NewQFileDialog(nil, 0)
 		fromFilename := fromFileSelect.GetOpenFileName(nil, "open File", "", "Bin Files (*.dump *.mfd *.bin);;All Files (*.*)", "", fromFileSelect.Options())
 		if fromFilename == "" {
-			log.Println("no file selected")
+			logrus.Debug("no file selected")
 			return
 		}
 
 		toFileSelect := widgets.NewQFileDialog(nil, 0)
 		toFilename := toFileSelect.GetSaveFileName(nil, "save Data to File", "", "", "", toFileSelect.Options())
 		if toFilename == "" {
-			log.Println("no file seleted")
+			logrus.Debug("no file seleted")
 			return
 		}
 
 		inData, err := eml2dump.File2Bytes(fromFilename)
 		if err != nil {
-			log.Print(err)
+			logrus.Error(err)
 			return
 		}
 
 		if !eml2dump.Bytes2Emul(toFilename, inData) {
-			log.Print("faiöled to write data to ", toFilename)
+			logrus.Error("faiöled to write data to ", toFilename)
 			return
 		}
 	})
@@ -67,25 +67,25 @@ func dataTab() *widgets.QWidget {
 		fromFileSelect := widgets.NewQFileDialog(nil, 0)
 		fromFilename := fromFileSelect.GetOpenFileName(nil, "open File", "", "Emulator Files (*.eml *.emul *.txt);;All Files (*.*)", "", fromFileSelect.Options())
 		if fromFilename == "" {
-			log.Println("no file selected")
+			logrus.Error("no file selected")
 			return
 		}
 
 		toFileSelect := widgets.NewQFileDialog(nil, 0)
 		toFilename := toFileSelect.GetSaveFileName(nil, "save Data to File", "", "", "", toFileSelect.Options())
 		if toFilename == "" {
-			log.Println("no file seleted")
+			logrus.Error("no file seleted")
 			return
 		}
 
 		filedata, err := eml2dump.File2Bytes(fromFilename)
 		if err != nil {
-			log.Print(err)
+			logrus.Error(err)
 			return
 		}
 		bindata, err := hex.DecodeString(strings.Replace(strings.Replace(string(filedata), "\n", "", -1), "\r", "", -1))
 		if err != nil {
-			log.Print(err)
+			logrus.Error(err)
 			return
 		}
 		eml2dump.Bytes2File(toFilename, bindata)
@@ -98,7 +98,7 @@ func dataTab() *widgets.QWidget {
 		fromFileSelect := widgets.NewQFileDialog(nil, 0)
 		fromFilename := fromFileSelect.GetOpenFileName(nil, "open File", "", "Bin Files (*.dump *.mfd *.bin);;All Files (*.*)", "", fromFileSelect.Options())
 		if fromFilename == "" {
-			log.Println("no file selected")
+			logrus.Error("no file selected")
 			return
 		}
 		TagA.FillFromFile(fromFilename)
@@ -111,7 +111,7 @@ func dataTab() *widgets.QWidget {
 		fromFileSelect := widgets.NewQFileDialog(nil, 0)
 		fromFilename := fromFileSelect.GetOpenFileName(nil, "open File", "", "Bin Files (*.dump *.mfd *.bin);;All Files (*.*)", "", fromFileSelect.Options())
 		if fromFilename == "" {
-			log.Println("no file selected")
+			logrus.Error("no file selected")
 			return
 		}
 		TagB.FillFromFile(fromFilename)
@@ -131,7 +131,7 @@ func dataTab() *widgets.QWidget {
 	if len(mapfiles) > 0 {
 		mapSelect.AddItems(mapfiles)
 	} else {
-		log.Print("creating dummy-map dummy.map")
+		logrus.Debug("creating dummy-map dummy.map")
 		temp := config.DefaultMap
 		temp.Save("dummy.map")
 		mapSelect.AddItems([]string{"dummy.map"})
@@ -188,7 +188,7 @@ func dataTab() *widgets.QWidget {
 				lbyte, err := hex.DecodeString(le.Text())
 
 				if err != nil {
-					log.Print(err)
+					logrus.Error(err)
 				} else {
 					if len(lbyte) == 1 {
 						data = append(data, lbyte[0])
@@ -215,7 +215,7 @@ func dataTab() *widgets.QWidget {
 	lockScrollChk.ConnectStateChanged(func(state int) {
 
 		ScrollLock = state
-		log.Printf("ScrollLock: %d", ScrollLock)
+		logrus.Debug("ScrollLock: %d", ScrollLock)
 
 	})
 
@@ -358,7 +358,7 @@ func (QTbytesGrid *QTbytes) Create(labelIt bool) *widgets.QScrollArea {
 func (QTbytesGrid *QTbytes) FillFromFile(filename string) {
 	data, _ := eml2dump.File2Bytes(filename)
 	if len(QTbytesGrid.LineEdits) != len(data) {
-		log.Printf("data-Len missmamatch grid: %d - file: %d", len(QTbytesGrid.LineEdits), len(data))
+		logrus.Debug("data-Len missmamatch grid: %d - file: %d", len(QTbytesGrid.LineEdits), len(data))
 		return
 	}
 	for i, b := range data {
@@ -368,7 +368,7 @@ func (QTbytesGrid *QTbytes) FillFromFile(filename string) {
 
 func (QTbytesGrid *QTbytes) FillFromBytes(data []byte) {
 	if len(QTbytesGrid.LineEdits) != len(data) {
-		log.Printf("data-Len missmamatch grid: %d - data: %d", len(QTbytesGrid.LineEdits), len(data))
+		logrus.Debug("data-Len missmamatch grid: %d - data: %d", len(QTbytesGrid.LineEdits), len(data))
 		return
 	}
 	for i, b := range data {

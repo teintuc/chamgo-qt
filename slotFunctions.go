@@ -4,16 +4,17 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
-	"github.com/WolfgangMau/chamgo-qt/nonces"
-	"github.com/WolfgangMau/chamgo-qt/xmodem"
-	"github.com/therecipe/qt/widgets"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/WolfgangMau/chamgo-qt/nonces"
+	"github.com/WolfgangMau/chamgo-qt/xmodem"
+	"github.com/sirupsen/logrus"
+	"github.com/therecipe/qt/widgets"
 )
 
 var myTime time.Time
@@ -59,7 +60,7 @@ func buttonClicked(btn int) {
 		getRssi()
 
 	default:
-		log.Printf("clicked on Button: %s\n", ActionButtons[btn])
+		logrus.Debugf("clicked on Button: %s\n", ActionButtons[btn])
 	}
 }
 
@@ -73,7 +74,7 @@ func getRssi() {
 
 //noinspection GoPrintFunctions
 func slotChecked(slot, state int) {
-	log.Printf(" Checked %d - state: %d\n", slot, state)
+	logrus.Debugf(" Checked %d - state: %d\n", slot, state)
 	if state == 2 && Connected {
 		sendSerialCmd(DeviceActions.SelectSlot + strconv.Itoa(slot+Cfg.Device[SelectedDeviceId].Config.Slot.Offset))
 	}
@@ -124,7 +125,7 @@ func clearSlot() {
 		sel := s.slot.IsChecked()
 		if sel {
 			c1++
-			log.Printf("clearing %s\n", s.slotl.Text())
+			logrus.Debugf("clearing %s\n", s.slotl.Text())
 			hardwareSlot := i + Cfg.Device[SelectedDeviceId].Config.Slot.Offset
 			sendSerialCmd(DeviceActions.SelectSlot + strconv.Itoa(hardwareSlot))
 			sendSerialCmd(DeviceActions.ClearSlot)
@@ -186,7 +187,7 @@ func mfkey32Slots() {
 			SerialPort.ResetInputBuffer()
 
 			//responsecode := strings.Replace(strings.Replace(string(buff[len(buff)-8:]), "\r", "", -1), "\n", "", -1)
-			log.Println("len enc: ", len(buff))
+			logrus.Debug("len enc: ", len(buff))
 			buff = nonces.DecryptData(buff[0:len(buff)-10], 123321, 208)
 			uid := buff[0:4]
 			serialMonitor.AppendPlainText(fmt.Sprintf("uid: %x\n", uid))
@@ -196,7 +197,7 @@ func mfkey32Slots() {
 			if len(noncemap) > 0 {
 				MyTabs.SetCurrentIndex(1)
 				serialMonitor.AppendPlainText(fmt.Sprintf("Fond %d nonces for UID: %04X - test possible comboinations ...", len(noncemap), uid))
-				log.Println("  UID      NT0      NR0      AR0      NT1      NR1      AR1")
+				logrus.Debug("  UID      NT0      NR0      AR0      NT1      NR1      AR1")
 				for i1 := 0; i1 < len(noncemap); i1++ {
 					for i2 := 0; i2 < len(noncemap); i2++ {
 						if i1 == i2 || i1 > i2 {
@@ -209,10 +210,10 @@ func mfkey32Slots() {
 									skey = "B"
 								}
 								args := []string{hex.EncodeToString(uid), hex.EncodeToString(noncemap[i1].Nt), hex.EncodeToString(noncemap[i1].Nr), hex.EncodeToString(noncemap[i1].Ar), hex.EncodeToString(noncemap[i2].Nt), hex.EncodeToString(noncemap[i2].Nr), hex.EncodeToString(noncemap[i2].Ar)}
-								log.Printf("%04X %04X %04X %04X %04X %04X %04X\n", uid, noncemap[i1].Nt, noncemap[i1].Nr, noncemap[i1].Ar, noncemap[i2].Nt, noncemap[i2].Nr, noncemap[i2].Ar)
+								logrus.Debugf("%04X %04X %04X %04X %04X %04X %04X\n", uid, noncemap[i1].Nt, noncemap[i1].Nr, noncemap[i1].Ar, noncemap[i2].Nt, noncemap[i2].Nr, noncemap[i2].Ar)
 								res, err := execCmd("mfkey32v2", args)
 								if err != nil {
-									log.Println(err)
+									logrus.Error(err)
 								} else {
 									if strings.Contains(res, "Found Key") {
 										key := strings.Split(res, "[")[1]
@@ -241,7 +242,7 @@ func uploadSlots() bool {
 	fileSelect := widgets.NewQFileDialog(nil, 0)
 	filename = fileSelect.GetOpenFileName(nil, "open Dump", "", "", "", fileSelect.Options())
 	if filename == "" {
-		log.Println("no file selected")
+		logrus.Debug("no file selected")
 		return false
 	}
 
@@ -250,15 +251,15 @@ func uploadSlots() bool {
 			hardwareSlot := i + Cfg.Device[SelectedDeviceId].Config.Slot.Offset
 			sendSerialCmd(DeviceActions.SelectSlot + strconv.Itoa(hardwareSlot))
 			// Open file
-			log.Printf("loading file %s\n", filename)
+			logrus.Debugf("loading file %s\n", filename)
 			fIn, err := os.Open(filename)
 			if err != nil {
-				log.Fatalln(err)
+				logrus.Fatalln(err)
 			}
 			//readfile into buffer
 			data, err := ioutil.ReadAll(fIn)
 			if err != nil {
-				log.Println(err)
+				logrus.Error(err)
 			}
 			fIn.Close()
 
@@ -318,10 +319,10 @@ func downloadSlots() {
 			fileSelect := widgets.NewQFileDialog(nil, 0)
 			filename = fileSelect.GetSaveFileName(nil, "save Data from "+s.slotl.Text()+" to File", "", "", "", fileSelect.Options())
 			if filename == "" {
-				log.Println("no file seleted")
+				logrus.Debug("no file seleted")
 				return
 			}
-			log.Printf("download a dump from Slot %d into file %s\n", i, filename)
+			logrus.Debugf("download a dump from Slot %d into file %s\n", i, filename)
 
 			//select slot
 			sendSerialCmd(DeviceActions.SelectSlot + strconv.Itoa(hardwareSlot))
@@ -331,27 +332,27 @@ func downloadSlots() {
 				temp, _ := strconv.Atoi(s.size.Text())
 				success, failed, data = xmodem.Receive(SerialPort, temp)
 
-				log.Printf("Success: %d - failed: %d\n", success, failed)
+				logrus.Debugf("Success: %d - failed: %d\n", success, failed)
 			}
 			if _, err := SerialPort.Write([]byte{xmodem.CAN}); err != nil {
-				log.Println(err)
+				logrus.Error(err)
 				break
 			}
 
 			if data.Len() > 0 {
-				log.Printf("got %d bytes to write to %s... ", data.Len(), filename)
+				logrus.Debugf("got %d bytes to write to %s... ", data.Len(), filename)
 				// Write file
 				fOut, err := os.Create(filename)
 				if err != nil {
-					log.Println(filename, " - write failed")
-					log.Fatalln(err)
+					logrus.Debug(filename, " - write failed")
+					logrus.Fatalln(err)
 				}
 				fOut.Write(data.Bytes())
 				fOut.Close()
 
-				log.Println(filename, " - write successful")
+				logrus.Debug(filename, " - write successful")
 			} else {
-				log.Println("bytes - file not written - bytes received: ", data.Len())
+				logrus.Debug("bytes - file not written - bytes received: ", data.Len())
 			}
 		}
 	}
@@ -368,14 +369,14 @@ func getSlotBytes(sn int) (res []byte) {
 	sendSerialCmd(DeviceActions.StartDownload)
 	if SerialResponse.Code == 110 {
 		temp, _ := strconv.Atoi(Slots[sn].size.Text())
-		log.Printf("expecting %d bytes", temp)
+		logrus.Debugf("expecting %d bytes", temp)
 		success, failed, data = xmodem.Receive(SerialPort, temp)
 		SerialPort.Write([]byte{xmodem.EOT})
-		log.Printf("HardwareSlot: %d - Success: %d - failed: %d  -  data-len: %d\n", hardwareSlot, success, failed, len(data.Bytes()))
+		logrus.Debugf("HardwareSlot: %d - Success: %d - failed: %d  -  data-len: %d\n", hardwareSlot, success, failed, len(data.Bytes()))
 	}
 	if _, err := SerialPort.Write([]byte{xmodem.CAN}); err != nil {
 		SerialPort.Write([]byte{xmodem.CAN})
-		log.Println(err)
+		logrus.Error(err)
 		return nil
 	}
 
@@ -408,7 +409,7 @@ func populateSlots() {
 			c++
 			hardwareSlot = sn + Cfg.Device[SelectedDeviceId].Config.Slot.Offset
 
-			log.Println("read data for Slot ", sn+1)
+			logrus.Debug("read data for Slot ", sn+1)
 			sendSerialCmd(DeviceActions.SelectSlot + strconv.Itoa(hardwareSlot))
 			//get slot uid
 			sendSerialCmd(DeviceActions.GetUid)
@@ -458,7 +459,7 @@ func checkForDevices() {
 			if !Connected {
 				serialPorts, err := getSerialPorts()
 				if err != nil {
-					log.Println(err)
+					logrus.Error(err)
 				}
 				if len(serialPorts) > 0 && serialPortSelect.CurrentText() != serialPorts[SelectedPortId] {
 					serialPortSelect.Clear()
@@ -511,15 +512,15 @@ func execCmd(cmdstr string, args []string) (res string, err error) {
 	cmd.Stdout = cmdOutput
 
 	// Execute command
-	//log.Printf("run Cmd: %s %s\n",cmd.Path,cmd.Args)
+	//logrus.Debugf("run Cmd: %s %s\n",cmd.Path,cmd.Args)
 	err = cmd.Run()
 	if err != nil {
-		log.Println("Error: ", err)
+		logrus.Error(err)
 		return res, err
 	}
 
 	// Only output the commands stdout
 	res = string(cmdOutput.Bytes())
-	//log.Printf("RES: %s\n",res)
+	//logrus.Debugf("RES: %s\n",res)
 	return res, err
 }
